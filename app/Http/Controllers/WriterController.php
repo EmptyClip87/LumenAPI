@@ -10,38 +10,45 @@ namespace App\Http\Controllers;
 
 use App\Writer;
 use Illuminate\Http\Request;
+use App\Models\Response;
+use Illuminate\Http\Response as HttpResponse;
 
 class WriterController extends Controller
 {
 
     public function showAllWriters()
     {
-        return response()->json(Writer::all());
+        $all = Response::make(Writer::all());
+        return response()->json($all);
     }
 
     public function showOneWriter($id)
     {
-        return response()->json(Writer::find($id));
+        $one = Response::make(Writer::findOrFail($id));
+        return response()->json($one);
     }
 
     public function create(Request $request)
     {
-        $Writer = Writer::create($request->all());
+        $new = Writer::create($request->all(), HttpResponse::HTTP_CREATED);
+        $new = Response::make($new);
 
-        return response()->json($Writer, 201);
+        return response()->json($new);
     }
 
     public function update($id, Request $request)
     {
-        $Writer = Writer::findOrFail($id);
-        $Writer->update($request->all());
+        $writer = Writer::findOrFail($id);
+        $writer->update($request->all());
+        $updatedWriter = Response::make(Writer::findOrFail($id));
 
-        return response()->json($Writer, 200);
+        return response()->json($updatedWriter);
     }
 
     public function delete($id)
     {
         Writer::findOrFail($id)->delete();
-        return response('Deleted Successfully', 200);
+        $response = Response::make('Deleted successfully');
+        return response($response);
     }
 }
